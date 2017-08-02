@@ -5,14 +5,17 @@
 ##   the first robotics Project from dandrews7396  ##
 #####################################################
 
+from datetime import datetime
 import time
+import os
 import numpy as np
 import explorerhat as eh
 import cv2
 import scipy
 from picamera import PiCamera
-import
-
+import smbus
+from io import BytesIO, StringIO
+import matplotlib.image as mpimg
 ## Set-up a class that forms the basis for our buggyBot this will allow us to update
 ## the bot as we go.
 class buggBot(object):
