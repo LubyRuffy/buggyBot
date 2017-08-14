@@ -63,6 +63,7 @@ class buggyBot(object):
             tot_time = time.time() - self.start_time
             if np.isinfinite(tot_time):
                 self.total_time = tot_time
+            ## If using an arduino, see `accelArdData.py` for helper code
             mpu_data = self.mpu_sensor.get_all_data()
             ## Output mpu_data to console, for debug
             print(mpu_data)
