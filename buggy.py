@@ -15,6 +15,7 @@ import scipy
 from picamera import PiCamera
 from io import BytesIO, StringIO
 import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 from mpu6050 import mpu6050
 
 ## Set-up a class that forms the basis for our buggyBot this will allow us to update
@@ -55,15 +56,18 @@ class buggyBot():
             self.total_time = 0
 
             if self.mpu_sensor.read_accel_range != 2:
-                self.mpu_sensor.set_accel_range(2)
+                self.mpu_sensor.set_accel_range(0x00)
             if self.mpu_sensor.read_gyro_range != 250:
-                self.mpu_sensor.set_gyro_range(250)
+                self.mpu_sensor.set_gyro_range(0x00)
             self.camera.resolution = (320, 240)
             self.camera.framerate = 24
             self.camera.rotation = 180
+            self.img, self.img_array = self._take_picture()
+            self.display_image(init=True)
+
         else:
             tot_time = time.time() - self.start_time
-            if np.isinfinite(tot_time):
+            if np.isfinite(tot_time):
                 self.total_time = tot_time
             ## If using an arduino, see `accelArdData.py` for helper code
             mpu_data = self.mpu_sensor.get_all_data()
@@ -75,6 +79,7 @@ class buggyBot():
             self.pitch = self._calc_pitch(mpu_accel)
             self.roll = self._calc_roll(mpu_accel)
             self.img, self.img_array = self._take_picture()
+            self.display_image()
 
     def _calc_pitch(self, accel_data):
         """ Calculate pitch angle of buggyBot."""
@@ -82,7 +87,7 @@ class buggyBot():
         y = accel_data["y"]
         z = accel_data["z"]
         denom = np.sqrt(y**2 + z**2)
-        return arctan2(x, denom)
+        return np.arctan2(x, denom)
 
     def _calc_roll(self, accel_data):
         """ Calculate roll angle of buggyBot."""
@@ -90,7 +95,7 @@ class buggyBot():
         y = accel_data["y"]
         z = accel_data["z"]
         denom = np.sqrt(x**2 + z**2)
-        return arctan2(y, denom)
+        return np.arctan2(y, denom)
 
     def _take_picture(self):
         """ Take picture as both standard image an np array."""
@@ -99,6 +104,22 @@ class buggyBot():
         self.camera.capture(array_out, 'rgb')
         std_img = self.camera.capture(self._img_file + '{}.jpg'.format(timestamp))
         return std_img, array_out
+
+    def display_image(self, init=False):
+        """Display latest image, overlay with IMU data"""
+        plt.clf()
+        images = sorted(os.listdir(self._img_file))
+        imgpath = self._img_file + images[-1]
+        img = mpimg.imread(imgpath)
+        plt.imshow(img)
+        if self.pitch and self.roll:
+            txt = 'Pitch: {:.3f}\nRoll: {:.3f}'.format(self.pitch, self.roll)
+            overlay = plt.text(310, 50, txt,
+                               horizontalalignment='right', color='white')
+        plt.axis('off')
+        plt.draw()
+        if init:
+            plt.show(block=False)
 
     def forwards(self, speed=100):
         """
