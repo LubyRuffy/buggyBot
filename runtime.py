@@ -2,6 +2,8 @@
 
 import curses
 import buggy
+import time
+
 
 print('\nWaking robot...\n')
 bot = buggy.buggyBot()
@@ -32,6 +34,7 @@ def main(window):
             if action is not None:
                 action()
                 bot.update()
+                time.sleep(.33)
             next_key = key
             while next_key == key:
                 next_key = window.getch()
