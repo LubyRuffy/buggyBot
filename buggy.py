@@ -16,17 +16,19 @@ from picamera import PiCamera
 from io import BytesIO, StringIO
 import matplotlib.image as mpimg
 from mpu6050 import mpu6050
+
 ## Set-up a class that forms the basis for our buggyBot this will allow us to update
 ## the bot as we go.
-class buggyBot(object):
+
+class buggyBot():
     """A buggy that's going to roam over the house. A lot of these will be None."""
 
     def __init__(self):
-        self.start_time
+        self.start_time = None # Start system time
         self.time = None # Start the navigation time
         self.total_time = None # Total time passed
         self.img = None # No image to begin with
-        self.img_array = None # Image will also be saved as np array, so no need to convert.
+        self.img_array = np.empty((240, 320, 3), dtype=np.uint8) # Image will also be saved as np array, so no need to convert.
         self.yaw = None # Not yet initialised
         self.pitch = None # Not yet initialised
         self.roll = None # Not yet initialised
@@ -36,11 +38,11 @@ class buggyBot(object):
         self.motor2 = eh.motor.two
         self.max_vel = 100
         ## Add in address using sudo i2cdetect -y 1
-        self.mpu_sensor = mpu6050(## address goes here)
+        self.mpu_sensor = mpu6050(0x68)
         self.x_acc_ctr = None   ## These will need
         self.y_acc_ctr = None   ## Populating on flat, level
         self.z_acc_ctr = None   ## When stationary.
-        self.camera = Picamera()
+        self.camera = PiCamera()
         self.buggy_vision = np.zeros((160,230,3), dtype = np.float)
         self.world_map = np.zeros((200, 200, 3), dtype = np.float)
         self._img_file = './images/'
@@ -52,9 +54,9 @@ class buggyBot(object):
             self.start_time = time.time()
             self.total_time = 0
 
-            if self.mpu_sensor.read_accel_range not 2:
-                self.mpu_sensor.set_aacel_range(ACCEL_RANGE_2G)
-            if self.mpu_sensor.read_gyro_range not 250:
+            if self.mpu_sensor.read_accel_range != 2:
+                self.mpu_sensor.set_accel_range(ACCEL_RANGE_2G)
+            if self.mpu_sensor.read_gyro_range != 250:
                 self.mpu_sensor.set_gyro_range(GYRO_RANGE_250DEG)
             self.camera.resolution = (320, 240)
             self.camera.framerate = 24
@@ -90,7 +92,7 @@ class buggyBot(object):
         denom = np.sqrt(x**2 + z**2)
         return arctan2(y, denom)
 
-    def _take_picture():
+    def _take_picture(self):
         """ Take picture as both standard image an np array."""
         timestamp = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         array_out = np.empty((240, 320, 3), dtype=np.uint8)
@@ -125,8 +127,8 @@ class buggyBot(object):
         Calls speed = 0 on both motors, via the explorerhat
         `motor.stop()` method.
         """
-    self.motor1.stop()
-    self.motor2.stop()
+        self.motor1.stop()
+        self.motor2.stop()
     
     ## These following methods will need to be augmented
     ## with either an internal or external function to
