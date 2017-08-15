@@ -120,6 +120,14 @@ class buggyBot(object):
         self.motor1.backwards(speed)
         self.motor2.backwards(speed)
 
+    def stop(self):
+        """
+        Calls speed = 0 on both motors, via the explorerhat
+        `motor.stop()` method.
+        """
+    self.motor1.stop()
+    self.motor2.stop()
+    
     ## These following methods will need to be augmented
     ## with either an internal or external function to
     ## match a required heading, once an integrated
