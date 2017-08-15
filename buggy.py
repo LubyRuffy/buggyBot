@@ -97,3 +97,49 @@ class buggyBot(object):
         self.camera.capture(array_out, 'rgb')
         std_img = self.camera.capture(self._img_file + '{}.jpg'.format(timestamp))
         return std_img, array_out
+
+    def forwards(self, speed=100):
+        """
+        This method is taken straight from the gpiozero library.
+        Simply calls the forward method for both motors via explorerhat
+
+        Speed is defaulted to 100, to match explorerhat default.
+        """
+
+        self.motor1.forwards(speed)
+        self.motor2.forwards(speed)
+
+    def backwards(self, speed=100):
+        """
+        Again taken from gpiozero, calls explorerhat motor `backwards()`
+        method for both motors.
+
+        speed is again set to 100, as per the explorerhat default.
+        """
+
+        self.motor1.backwards(speed)
+        self.motor2.backwards(speed)
+
+    ## These following methods will need to be augmented
+    ## with either an internal or external function to
+    ## match a required heading, once an integrated
+    ## heading sensor has been installed.
+
+    ## Can be used 'as is' for an RC solution.
+
+    def turn_left(self, speed=100):
+        """
+        Call motor methods in opposite directions,
+        in order to turn left.
+
+        left backwards, right forwards. same speed.
+        """
+        self.motor1.backwards(speed)
+        self.motor2.forwards(speed)
+
+    def turn_right(self, speed=100):
+        """
+        As before, opposite direction.
+        """
+        self.motor1.forwards(speed)
+        self.motor2.backwards(speed)
