@@ -55,9 +55,9 @@ class buggyBot():
             self.total_time = 0
 
             if self.mpu_sensor.read_accel_range != 2:
-                self.mpu_sensor.set_accel_range(ACCEL_RANGE_2G)
+                self.mpu_sensor.set_accel_range(2)
             if self.mpu_sensor.read_gyro_range != 250:
-                self.mpu_sensor.set_gyro_range(GYRO_RANGE_250DEG)
+                self.mpu_sensor.set_gyro_range(250)
             self.camera.resolution = (320, 240)
             self.camera.framerate = 24
             self.camera.rotation = 180
